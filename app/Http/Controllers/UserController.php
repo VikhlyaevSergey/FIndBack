@@ -69,7 +69,7 @@ class UserController extends Controller
      * Register
      *
      * @param UserRegisterRequest $request
-     * 
+     *
      * @return \Illuminate\Http\JsonResponse
      */
     public function register(UserRegisterRequest $request)
@@ -107,5 +107,9 @@ class UserController extends Controller
         $user->update($userAttributes);
 
         return responseApi(['profile' => $user->getProfile()])->get();
+    }
+
+    public function getProfile() {
+        return responseApi(['profile' => user()->getProfile()])->get();
     }
 }

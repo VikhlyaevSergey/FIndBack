@@ -20,25 +20,30 @@ use App\Models\Phone as PhoneModel;
 |
 */
 
-$factory->define(User::class, function (Faker $faker) {
+$factory->define(
+    User::class, function (Faker $faker) {
     return [
         'fullName' => $faker->name,
+        'image'    => $faker->word,
     ];
 });
 
-$factory->define(PhoneModel::class, function (Faker $faker) {
+$factory->define(
+    PhoneModel::class, function (Faker $faker) {
     return [
         'phone' => Phone::create($faker->unique()->numberBetween(10000000000, 99999999999)),
     ];
 });
 
-$factory->define(Email::class, function (Faker $faker) {
+$factory->define(
+    Email::class, function (Faker $faker) {
     return [
         'email' => $faker->unique()->safeEmail,
     ];
 });
 
-$factory->define(Code::class, function (Faker $faker) {
+$factory->define(
+    Code::class, function (Faker $faker) {
     return [
         'phone' => Phone::create($faker->numberBetween(10000000000, 99999999999)),
         'code'  => $faker->numberBetween(1000, 9999),

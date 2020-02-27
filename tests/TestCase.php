@@ -90,7 +90,7 @@ abstract class TestCase extends BaseTestCase
             [
                 'success'  => false,
                 'error'    => 401,
-                'message'  => ['error' => 'You are not authorized'],
+                'message'  => 'Вы не авторизованы',
                 'response' => NULL,
             ]);
     }
@@ -108,7 +108,7 @@ abstract class TestCase extends BaseTestCase
             [
                 'success'  => false,
                 'error'    => 403,
-                'message'  => ['error' => 'You do not have permission to access this resource'],
+                'message'  => 'You do not have permission to access this resource',
                 'response' => NULL,
             ]);
     }

@@ -19,16 +19,18 @@ class User extends Authenticatable
      * @var array
      */
     protected $fillable = [
-        'fullName', 'image',
+        'fullName',
+        'image',
     ];
 
     protected static function boot()
     {
         parent::boot();
 
-        static::creating(function (self $user) {
-            $user->date = now()->toDateString();
-        });
+        static::creating(
+            function (self $user) {
+                $user->date = now()->toDateString();
+            });
     }
 
     /**
@@ -39,15 +41,19 @@ class User extends Authenticatable
     public function getProfile()
     {
         return [
-            'id' => $this->id,
-            'profileMainBlock' => $this->makeHidden(['places', 'emails', 'phones']),
+            'id'                   => $this->id,
+            'profileMainBlock'     => $this->makeHidden(['places', 'emails', 'phones']),
             'profileContactsBlock' => [
-                'emails' => $this->emails->pluck('email'),
-                'phoneNumbers' => $this->phones->pluck('phone')
+                'emails'       => $this->emails->pluck('email'),
+                'phoneNumbers' => $this->phones->pluck('phone'),
             ],
-            'places' => $this->places,
-            'profileFavouriteLossObjects' => [],
-            'profileLossObjects' => []
+            'places'               => $this->places,
+
+            'profileFavouriteLossObjects' => $this->relationLoaded('objects') ? $this->objects->pluck('id') :
+                $this->objects()->select('objects.id')->get(),
+
+            'profileLossObjects' => $this->relationLoaded('favorite_objects') ? $this->favoriteObjects->pluck('id') :
+                $this->favoriteObjects()->select('objects.id')->get(),
         ];
     }
 
@@ -82,18 +88,35 @@ class User extends Authenticatable
     }
 
     /**
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function objects()
+    {
+        return $this->hasMany(LossObject::class, 'user_id');
+    }
+
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
+     */
+    public function favoriteObjects()
+    {
+        return $this->belongsToMany(LossObject::class, 'object_favorite_user', 'user_id', 'object_id');
+    }
+
+    /**
      * получить пользователя по телефону
      *
      * @param Builder $query
-     * @param string $phone
-     * 
+     * @param string  $phone
+     *
      * @return Builder
      */
     public function scopeByPhone(Builder $query, string $phone)
     {
         $phone = PhoneHelper::create($phone);
 
-        return $query->whereHas('phones', function ($subQuery) use ($phone) {
+        return $query->whereHas(
+            'phones', function ($subQuery) use ($phone) {
             $subQuery->where('phone', $phone);
         });
     }
