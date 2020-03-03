@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "faa62f1065a770e064b8cd2c285c2d52",
+    "content-hash": "f79d0968e85efa85d0fdbdfc2ecbd367",
     "packages": [
         {
             "name": "defuse/php-encryption",
@@ -4165,6 +4165,51 @@
                 "environment"
             ],
             "time": "2019-09-10T21:37:39+00:00"
+        },
+        {
+            "name": "zelenin/smsru",
+            "version": "4.1.2",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/zelenin/sms_ru.git",
+                "reference": "6a24d6386fbe2113d8c4b64e577216eaa5123dda"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/zelenin/sms_ru/zipball/6a24d6386fbe2113d8c4b64e577216eaa5123dda",
+                "reference": "6a24d6386fbe2113d8c4b64e577216eaa5123dda",
+                "shasum": ""
+            },
+            "require": {
+                "guzzlehttp/guzzle": "~6",
+                "php": ">=5.5.0"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Zelenin\\SmsRu\\": ""
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Aleksandr Zelenin",
+                    "email": "aleksandr@zelenin.me",
+                    "homepage": "http://zelenin.me",
+                    "role": "Developer"
+                }
+            ],
+            "description": "PHP-класс для работы с api сервиса [sms.ru](http://sms.ru)",
+            "homepage": "https://github.com/zelenin/sms_ru",
+            "keywords": [
+                "api",
+                "sms",
+                "sms.ru"
+            ],
+            "time": "2018-03-26T16:14:44+00:00"
         }
     ],
     "packages-dev": [
