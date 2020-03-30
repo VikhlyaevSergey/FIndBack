@@ -2,6 +2,8 @@
 
 namespace Tests;
 
+use App\Components\Phone as ComponentsPhone;
+use App\Models\Phone;
 use App\Models\User;
 use Illuminate\Foundation\Testing\TestCase as BaseTestCase;
 use Illuminate\Foundation\Testing\TestResponse;
@@ -218,5 +220,21 @@ abstract class TestCase extends BaseTestCase
     protected function cuteStr(string $str)
     {
         return substr($str, 1, strlen($str) - 2);
+    }
+
+    /**
+     * create test user
+     *
+     * @param null $phone
+     *
+     * @return mixed
+     */
+    protected function createUser($phone = NULL)
+    {
+        $phone = $phone ?: $this->faker()->numberBetween(10000000000, 99999999999);
+        $user  = User::create();
+        $user->phones()->save(factory(Phone::class)->make(['phone' => ComponentsPhone::create($phone)]));
+
+        return $user;
     }
 }

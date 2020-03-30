@@ -107,16 +107,12 @@ class RegisterRequestTest extends TestCase
     protected function getData()
     {
         Storage::persistentFake('test');
-
-        $phone = $this->faker()->numberBetween(10000000000, 99999999999);
+        $user = $this->createUser();
         $image = UploadedFile::fake()->image('test.jpg');
-        $user = User::create();
-
-        $user->phones()->save(factory(Phone::class)->make(['phone' => ComponentsPhone::create($phone)]));
 
         return [
             'fullName' => $this->faker()->name,
-            'phone' => (string)$phone,
+            'phone' => $user->phones->first()->phone,
             'email' => $this->faker()->email,
             'places' => [
                 [

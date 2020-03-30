@@ -2,16 +2,13 @@
 
 namespace App\Http\Controllers;
 
-use Exception;
+use App\Http\Requests\v1\UpdateProfileRequest;
 use App\Models\User;
 use App\Components\Phone;
 use App\Components\AuthCode;
 use App\Exceptions\ApiException;
-use App\Components\Image\ImageHelper;
 use App\Http\Requests\v1\UserLoginRequest;
 use App\Http\Requests\v1\UserRegisterRequest;
-use Illuminate\Validation\ValidationException;
-use Intervention\Image\Exception\NotReadableException;
 
 class UserController extends Controller
 {
@@ -52,17 +49,16 @@ class UserController extends Controller
             $user = User::create();
             $user->phones()->create(['phone' => $phone]);
 
-            return responseApi([
-                'action' => 'register',
-            ])->get();
+            return responseApi(['action' => 'register'])->get();
         }
 
         $token = $user->createToken($phone . ' access_token')->accessToken;
 
-        return responseApi([
-            'token' => $token,
-            'id'  => $user->id,
-        ])->get();
+        return responseApi(
+            [
+                'token' => $token,
+                'id'    => $user->id,
+            ])->get();
     }
 
     /**
@@ -71,6 +67,7 @@ class UserController extends Controller
      * @param UserRegisterRequest $request
      *
      * @return \Illuminate\Http\JsonResponse
+     * @throws ApiException
      */
     public function register(UserRegisterRequest $request)
     {
@@ -80,21 +77,7 @@ class UserController extends Controller
             throw new ApiException('Телефон не подтвержден', 400);
         }
 
-        $userAttributes = $request->only(['fullName']);
-
-        if ($request->has('image')) {
-            $image = $request->input('image') ?: $request->file('image');
-
-            try {
-                $image = ImageHelper::make($image, 'avatars');
-                [$file] = $image->saveAllSizes();
-
-                $userAttributes['image'] = $file;
-            } catch (NotReadableException $e) {
-                $error = ValidationException::withMessages(['image' => 'Неверный тип картинки']);
-                throw $error;
-            }
-        }
+        $userAttributes = $request->except(['email', 'places']);
 
         if ($request->has('email')) {
             $user->emails()->firstOrCreate(['email' => $request->input('email')]);
@@ -109,7 +92,46 @@ class UserController extends Controller
         return responseApi(['profile' => $user->getProfile()])->get();
     }
 
-    public function getProfile() {
+    /**
+     * Update profile
+     *
+     * @param UserRegisterRequest $request
+     *
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function updateProfile(UpdateProfileRequest $request)
+    {
+        $userAttributes = $request->except(['emails', 'places', 'phones']);
+        $user           = user();
+
+        if ($request->has('emails')) {
+            foreach ($request->input('emails') as $email) {
+                $user->emails()->firstOrCreate(['email' => $email]);
+            }
+        }
+
+        if ($request->has('places')) {
+            foreach ($request->input('places') as $place) {
+                $user->places()->firstOrCreate($place);
+            }
+        }
+
+        if ($request->has('phones')) {
+            foreach ($request->input('phones') as $phone) {
+                $user->phones()->firstOrCreate(['phone' => Phone::create($phone)]);
+            }
+        }
+
+        $user->update($userAttributes);
+
+        return responseApi(['profile' => $user->getProfile()])->get();
+    }
+
+    /**
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function getProfile()
+    {
         return responseApi(['profile' => user()->getProfile()])->get();
     }
 }
