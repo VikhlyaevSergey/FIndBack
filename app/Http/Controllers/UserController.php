@@ -9,6 +9,7 @@ use App\Components\AuthCode;
 use App\Exceptions\ApiException;
 use App\Http\Requests\v1\UserLoginRequest;
 use App\Http\Requests\v1\UserRegisterRequest;
+use Illuminate\Support\Arr;
 
 class UserController extends Controller
 {
@@ -30,7 +31,8 @@ class UserController extends Controller
      */
     public function login(UserLoginRequest $request)
     {
-        $auth = new AuthCode($request->input('phone'));
+        $auth  = new AuthCode($request->input('phone'));
+        $phone = Phone::create($request->input('phone'));
 
         if (!$request->has('code')) {
             $auth->send();
@@ -38,12 +40,28 @@ class UserController extends Controller
             return responseApi()->get();
         }
 
+        // for testing
+        if ($phone === Phone::create(Arr::first(AuthCode::TEST_PHONES)) && $request->input('code') === AuthCode::STATIC_CODE) {
+            $user  = User::byPhone($phone)->first();
+            $token = $user->createToken($phone . ' access_token')->accessToken;
+
+            return responseApi(
+                [
+                    'token' => $token,
+                    'id'    => $user->id,
+                ])->get();
+        }
+
+        // for testing
+        if ($phone === Phone::create(Arr::last(AuthCode::TEST_PHONES)) && $request->input('code') === AuthCode::STATIC_CODE) {
+            return responseApi(['action' => 'register'])->get();
+        }
+
         if (!$auth->check($request->input('code'))) {
             throw new ApiException('Неверный код подтверждения', 400);
         }
 
-        $phone = Phone::create($request->input('phone'));
-        $user  = User::byPhone($phone)->first();
+        $user = User::byPhone($phone)->first();
 
         if (!$user) {
             $user = User::create();

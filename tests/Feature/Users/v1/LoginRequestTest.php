@@ -2,10 +2,12 @@
 
 namespace Tests\Feature\Users\v1;
 
+use App\Components\AuthCode;
 use App\Components\Phone;
 use App\Models\Code;
 use App\Models\User;
 use App\Models\Phone as PhoneModel;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Artisan;
 use Tests\TestCase;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -57,16 +59,17 @@ class LoginRequestTest extends TestCase
      */
     public function testCheckCodeNewUserRequest()
     {
-        $phone = '+79999999999';
+        $phone = '+77942347234';
         $code  = factory(Code::class)->create(['phone' => Phone::create($phone)]);
 
         $response = $this->request(['phone' => $phone, 'code' => $code->code]);
 
-        $this->assertResponseSuccess($response)->assertJson([
-            'response' => [
-                'action' => 'register'
-            ]
-        ]);
+        $this->assertResponseSuccess($response)->assertJson(
+            [
+                'response' => [
+                    'action' => 'register',
+                ],
+            ]);
 
         $this->assertDatabaseHas('phones', ['phone' => Phone::create($phone)]);
     }
@@ -79,16 +82,17 @@ class LoginRequestTest extends TestCase
     public function testCheckCodeExistUserRequest()
     {
         Artisan::call('passport:install');
-        $phone = '+79999999999';
+        $phone = '+79989990919';
         $user  = factory(User::class)->create();
         $user->phones()->save(factory(PhoneModel::class)->make(['phone' => Phone::create($phone)]));
-        $code  = factory(Code::class)->create(['phone' => Phone::create($phone)]);
+        $code = factory(Code::class)->create(['phone' => Phone::create($phone)]);
 
         $response = $this->request(['phone' => $phone, 'code' => $code->code]);
 
-        $this->assertResponseSuccess($response)->assertJsonStructure([
-            'response' => LoginResponse::response()
-        ]);
+        $this->assertResponseSuccess($response)->assertJsonStructure(
+            [
+                'response' => LoginResponse::response(),
+            ]);
 
         $this->assertEquals($user->id, $response->json('response.id'));
         $this->assertDatabaseHas('users', ['id' => $response->json('response.id')]);
@@ -101,7 +105,7 @@ class LoginRequestTest extends TestCase
      */
     public function testCheckCodeInvalidRequest()
     {
-        $phone = '+79999999999';
+        $phone = '+79939189909';
         $code  = 'invalid';
 
         $response = $this->request(['phone' => $phone, 'code' => $code]);
@@ -116,11 +120,58 @@ class LoginRequestTest extends TestCase
      */
     public function testCheckCodeWrongRequest()
     {
-        $phone = '+79999999999';
+        $phone = '+79939189909';
 
         $response = $this->request(['phone' => $phone, 'code' => 7363]);
 
         $this->assertResponseError($response, 400);
+    }
+
+    /**
+     * проверка кода
+     * тестовый телефон
+     * юзер авторизован
+     */
+    public function testGetTokenWithTestPhone()
+    {
+        Artisan::call('passport:install');
+        $phone = Arr::first(AuthCode::TEST_PHONES);
+        $user  = factory(User::class)->create();
+        $user->phones()->save(factory(PhoneModel::class)->make(['phone' => Phone::create($phone)]));
+
+        $response = $this->request(['phone' => $phone, 'code' => AuthCode::STATIC_CODE]);
+
+        $this->assertResponseSuccess($response)->assertJsonStructure(
+            [
+                'response' => LoginResponse::response(),
+            ]);
+
+        $this->assertEquals($user->id, $response->json('response.id'));
+        $this->assertDatabaseHas('users', ['id' => $response->json('response.id')]);
+    }
+
+    /**
+     * проверка кода
+     * валидный код, тестовый юзер
+     * успешный запрос, необходима регистрация
+     */
+    public function testActionRegisterWithTestPhone()
+    {
+        $phone = Arr::last(AuthCode::TEST_PHONES);
+        $user  = factory(User::class)->create();
+        $user->phones()->save(factory(PhoneModel::class)->make(['phone' => Phone::create($phone)]));
+        $code = AuthCode::STATIC_CODE;
+
+        $response = $this->request(['phone' => $phone, 'code' => $code]);
+
+        $this->assertResponseSuccess($response)->assertJson(
+            [
+                'response' => [
+                    'action' => 'register',
+                ],
+            ]);
+
+        $this->assertDatabaseHas('phones', ['phone' => Phone::create($phone)]);
     }
 
     /**
