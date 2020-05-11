@@ -5,7 +5,6 @@ namespace Tests\Feature\Users\v1;
 use App\Components\Image\ImageHelper;
 use App\Components\Phone as ComponentsPhone;
 use App\Models\Email;
-use App\Models\Phone;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;

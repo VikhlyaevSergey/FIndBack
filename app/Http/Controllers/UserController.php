@@ -160,4 +160,19 @@ class UserController extends Controller
     {
         return responseApi(['profile' => user()->getProfile()])->get();
     }
+
+    /**
+     * выход из профиля
+     *
+     * @return \Illuminate\Http\JsonResponse
+     * @throws \Exception
+     */
+    public function logout()
+    {
+        if (user()->token()) {
+            user()->token()->delete();
+        }
+
+        return responseApi()->get();
+    }
 }
