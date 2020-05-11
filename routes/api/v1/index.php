@@ -18,3 +18,4 @@ Route::post('/register', 'UserController@register');
 Route::post('/logout', 'UserController@logout');
 
 Route::prefix('users')->group(base_path('routes/api/v1/users.php'));
+Route::prefix('objects')->group(base_path('routes/api/v1/objects.php'));

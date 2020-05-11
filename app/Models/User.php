@@ -93,10 +93,10 @@ class User extends Authenticatable
             ],
             'places'               => $this->places,
 
-            'profileFavouriteLossObjects' => $this->relationLoaded('objects') ? $this->objects->pluck('id') :
+            'profileFavouriteLossObjects' => $this->relationLoaded('favorite_objects') ? $this->objects->pluck('id') :
                 $this->objects()->select('objects.id')->get(),
 
-            'profileLossObjects' => $this->relationLoaded('favorite_objects') ? $this->favoriteObjects->pluck('id') :
+            'profileLossObjects' => $this->relationLoaded('objects') ? $this->favoriteObjects->pluck('id') :
                 $this->favoriteObjects()->select('objects.id')->get(),
         ];
     }
