@@ -76,12 +76,11 @@ class LoginRequestTest extends TestCase
 
     /**
      * проверка кода
-     * валидный код, существующий пользователь
-     * успешный запрос, пользователь создан
+     * валидный код, существующий пользователь, но не прошел регистрацию
+     * успешный запрос, отправляем на регистрацию
      */
     public function testCheckCodeExistUserRequest()
     {
-        Artisan::call('passport:install');
         $phone = '+79989990919';
         $user  = factory(User::class)->create();
         $user->phones()->save(factory(PhoneModel::class)->make(['phone' => Phone::create($phone)]));
@@ -89,13 +88,12 @@ class LoginRequestTest extends TestCase
 
         $response = $this->request(['phone' => $phone, 'code' => $code->code]);
 
-        $this->assertResponseSuccess($response)->assertJsonStructure(
+        $this->assertResponseSuccess($response)->assertJson(
             [
-                'response' => LoginResponse::response(),
+                'response' => [
+                    'action' => 'register',
+                ],
             ]);
-
-        $this->assertEquals($user->id, $response->json('response.id'));
-        $this->assertDatabaseHas('users', ['id' => $response->json('response.id')]);
     }
 
     /**

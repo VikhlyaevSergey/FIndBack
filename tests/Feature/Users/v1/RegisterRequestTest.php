@@ -4,6 +4,7 @@ namespace Tests\Feature\Users\v1;
 
 use App\Components\Image\ImageHelper;
 use App\Components\Image\ImageSize;
+use Illuminate\Support\Facades\Artisan;
 use Tests\TestCase;
 use App\Models\User;
 use App\Models\Email;
@@ -26,6 +27,7 @@ class RegisterRequestTest extends TestCase
      */
     public function testValid()
     {
+        Artisan::call('passport:install');
         $data = $this->getData();
 
         $response = $this->request($data);

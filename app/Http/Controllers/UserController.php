@@ -66,11 +66,16 @@ class UserController extends Controller
         if (!$user) {
             $user = User::create();
             $user->phones()->create(['phone' => $phone]);
+        }
 
+        if (!$user->last_login) {
             return responseApi(['action' => 'register'])->get();
         }
 
         $token = $user->createToken($phone . ' access_token')->accessToken;
+
+        $user->last_login = now();
+        $user->save();
 
         return responseApi(
             [
@@ -89,7 +94,8 @@ class UserController extends Controller
      */
     public function register(UserRegisterRequest $request)
     {
-        $user = User::byPhone($request->input('phone'))->first();
+        $phone = Phone::create($request->input('phone'));
+        $user  = User::byPhone($phone)->first();
 
         if (!$user) {
             throw new ApiException('Телефон не подтвержден', 400);
@@ -105,9 +111,11 @@ class UserController extends Controller
             $user->places()->createMany($request->input('places'));
         }
 
-        $user->update($userAttributes);
+        $user->update($userAttributes + ['last_login' => now()]);
 
-        return responseApi(['profile' => $user->getProfile()])->get();
+        $token = $user->createToken($phone . ' access_token')->accessToken;
+
+        return responseApi(['profile' => $user->getProfile(), 'token' => $token])->get();
     }
 
     /**
