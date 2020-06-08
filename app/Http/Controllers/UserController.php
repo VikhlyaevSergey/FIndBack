@@ -2,6 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\v1\DeleteEmailRequest;
+use App\Http\Requests\v1\DeletePhoneRequest;
+use App\Http\Requests\v1\DeletePlaceRequest;
 use App\Http\Requests\v1\UpdateProfileRequest;
 use App\Models\User;
 use App\Components\Phone;
@@ -172,6 +175,48 @@ class UserController extends Controller
         if (user()->token()) {
             user()->token()->delete();
         }
+
+        return responseApi()->get();
+    }
+
+    /**
+     * удалить телефон
+     *
+     * @param DeletePhoneRequest $request
+     *
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function deletePhone(DeletePhoneRequest $request)
+    {
+        user()->phones()->wherePhone(Phone::create($request->input('phone')))->delete();
+
+        return responseApi()->get();
+    }
+
+    /**
+     * удалить email
+     *
+     * @param DeletePhoneRequest $request
+     *
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function deleteEmail(DeleteEmailRequest $request)
+    {
+        user()->emails()->whereEmail($request->input('email'))->delete();
+
+        return responseApi()->get();
+    }
+
+    /**
+     * удалить место
+     *
+     * @param DeletePhoneRequest $request
+     *
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function deletePlace(DeletePlaceRequest $request)
+    {
+        user()->places()->whereId($request->input('place'))->delete();
 
         return responseApi()->get();
     }

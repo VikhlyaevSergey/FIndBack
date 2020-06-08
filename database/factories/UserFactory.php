@@ -3,6 +3,7 @@
 /** @var \Illuminate\Database\Eloquent\Factory $factory */
 
 use App\Models\Code;
+use App\Models\Place;
 use App\Models\User;
 use App\Components\Phone;
 use App\Models\Email;
@@ -32,6 +33,7 @@ $factory->define(
     PhoneModel::class, function (Faker $faker) {
     return [
         'phone' => Phone::create($faker->unique()->numberBetween(10000000000, 99999999999)),
+        'user_id' => factory(User::class)->create()
     ];
 });
 
@@ -39,6 +41,7 @@ $factory->define(
     Email::class, function (Faker $faker) {
     return [
         'email' => $faker->unique()->safeEmail,
+        'user_id' => factory(User::class)->create()
     ];
 });
 
@@ -47,5 +50,15 @@ $factory->define(
     return [
         'phone' => Phone::create($faker->numberBetween(10000000000, 99999999999)),
         'code'  => $faker->numberBetween(1000, 9999),
+    ];
+});
+
+$factory->define(
+    Place::class, function (Faker $faker) {
+    return [
+        'name'      => $faker->word,
+        'latitude'  => $faker->latitude,
+        'longitude' => $faker->longitude,
+        'user_id' => factory(User::class)->create()
     ];
 });

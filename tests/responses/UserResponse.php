@@ -23,6 +23,7 @@ class UserResponse implements Responseable
                 ],
                 'places' => [
                     '*' => [
+                        'id',
                         'name',
                         'latitude',
                         'longitude'
