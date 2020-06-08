@@ -94,17 +94,17 @@ class UserController extends Controller
      */
     public function register(UserRegisterRequest $request)
     {
-        $phone = Phone::create($request->input('phone'));
+        $phone = Phone::create(Arr::first($request->input('phones')));
         $user  = User::byPhone($phone)->first();
 
         if (!$user) {
             throw new ApiException('Телефон не подтвержден', 400);
         }
 
-        $userAttributes = $request->except(['email', 'places']);
+        $userAttributes = $request->except(['emails', 'places']);
 
-        if ($request->has('email')) {
-            $user->emails()->firstOrCreate(['email' => $request->input('email')]);
+        if ($request->has('emails')) {
+            $user->emails()->firstOrCreate(['email' => Arr::first($request->input('emails'))]);
         }
 
         if ($request->has('places')) {

@@ -25,14 +25,16 @@ class UserRegisterRequest extends FormRequest
     {
         return [
             'fullName' => 'required|string',
-            'phone' => 'required|min:10|regex:/\d+/',
+            'phones'   => 'required|array|size:1',
+            'phones.*' => 'min:10|regex:/\d+/',
 
-            'email' => 'string|unique:emails',
+            'emails'   => 'array|size:1',
+            'emails.*' => 'string|unique:emails,email',
             // 'image' => 'string',
 
-            'places' => 'array',
-            'places.*.name' => 'required|string',
-            'places.*.latitude' => 'required|numeric',
+            'places'             => 'array',
+            'places.*.name'      => 'required|string',
+            'places.*.latitude'  => 'required|numeric',
             'places.*.longitude' => 'required|numeric',
         ];
     }

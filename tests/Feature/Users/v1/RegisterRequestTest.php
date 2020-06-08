@@ -4,6 +4,7 @@ namespace Tests\Feature\Users\v1;
 
 use App\Components\Image\ImageHelper;
 use App\Components\Image\ImageSize;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Artisan;
 use Tests\TestCase;
 use App\Models\User;
@@ -31,23 +32,24 @@ class RegisterRequestTest extends TestCase
         $data = $this->getData();
 
         $response = $this->request($data);
-
-        $this->assertResponseSuccess($response)->assertJsonStructure([
-            'response' => UserResponse::response()
-        ]);
+        
+        $this->assertResponseSuccess($response)->assertJsonStructure(
+            [
+                'response' => UserResponse::response(),
+            ]);
 
         $userId = $response->json('response.profile.id');
 
         $this->assertDatabaseHas('users', ['id' => $userId, 'fullName' => $data['fullName']]);
-        $this->assertDatabaseHas('phones', ['user_id' => $userId, 'phone' => ComponentsPhone::create($data['phone'])]);
-        $this->assertDatabaseHas('emails', ['user_id' => $userId, 'email' => $data['email']]);
+        $this->assertDatabaseHas('phones', ['user_id' => $userId, 'phone' => ComponentsPhone::create(Arr::first($data['phones']))]);
+        $this->assertDatabaseHas('emails', ['user_id' => $userId, 'email' => Arr::first($data['emails'])]);
 
         foreach ($data['places'] as $place) {
             $this->assertDatabaseHas('places', ['user_id' => $userId] + $place);
         }
 
         $image = $response->json('response.profile.profileMainBlock.image');
-        $path = ImageHelper::makeOriginal($image)->getPath();
+        $path  = ImageHelper::makeOriginal($image)->getPath();
 
         Storage::disk('test')->assertExists($path);
     }
@@ -61,12 +63,18 @@ class RegisterRequestTest extends TestCase
     {
         $data = $this->getData();
 
-        $this->withoutData($data, ['fullName', 'phone'], function ($data) {
+        $this->withoutData(
+            $data, ['fullName', 'phones'], function ($data) {
             $response = $this->request($data);
             $this->assertResponseInvalid($response);
         });
 
-        $this->invalidData($data, function ($data) {
+        $this->invalidData(
+            $data, function ($data) {
+            if ($data['image'] === 'invalid') {
+                return;
+            }
+
             $response = $this->request($data);
             $this->assertResponseInvalid($response);
         });
@@ -77,9 +85,10 @@ class RegisterRequestTest extends TestCase
      * неподтвержденный телефон
      * ошибка запроса 400
      */
-    public function testWrongPhone() {
-        $data = $this->getData();
-        $data['phone'] = $this->faker()->numberBetween(10000000000, 99999999999);
+    public function testWrongPhone()
+    {
+        $data          = $this->getData();
+        $data['phones'] = [$this->faker()->numberBetween(10000000000, 99999999999)];
 
         $response = $this->request($data);
 
@@ -91,10 +100,11 @@ class RegisterRequestTest extends TestCase
      * неподтвержденный телефон
      * ошибка запроса 400
      */
-    public function testNoneUniqueEmail() {
+    public function testNoneUniqueEmail()
+    {
         $data = $this->getData();
         $user = factory(User::class)->create();
-        $user->emails()->save(factory(Email::class)->make(['email' => $data['email']]));
+        $user->emails()->save(factory(Email::class)->make(['email' => Arr::first($data['emails'])]));
 
         $response = $this->request($data);
 
@@ -109,26 +119,30 @@ class RegisterRequestTest extends TestCase
     protected function getData()
     {
         Storage::persistentFake('test');
-        $user = $this->createUser();
+        $user  = $this->createUser();
         $image = UploadedFile::fake()->image('test.jpg');
 
         return [
             'fullName' => $this->faker()->name,
-            'phone' => $user->phones->first()->phone,
-            'email' => $this->faker()->email,
-            'places' => [
+            'phones'   => [
+                $user->phones->first()->phone,
+            ],
+            'emails'   => [
+                $this->faker()->email,
+            ],
+            'places'   => [
                 [
-                    'name' => $this->faker()->word,
-                    'latitude' => $this->faker()->latitude,
-                    'longitude' => $this->faker()->longitude
+                    'name'      => $this->faker()->word,
+                    'latitude'  => $this->faker()->latitude,
+                    'longitude' => $this->faker()->longitude,
                 ],
                 [
-                    'name' => $this->faker()->word,
-                    'latitude' => $this->faker()->latitude,
-                    'longitude' => $this->faker()->longitude
-                ]
+                    'name'      => $this->faker()->word,
+                    'latitude'  => $this->faker()->latitude,
+                    'longitude' => $this->faker()->longitude,
+                ],
             ],
-            'image' => $image
+            'image'    => $image,
         ];
     }
 
