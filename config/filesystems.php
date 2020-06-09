@@ -60,10 +60,10 @@ return [
             'visibility' => 'public',
         ],
 
-        'avatar' => [
+        'avatars' => [
             'driver' => 'local',
-            'root' => storage_path('app/public/avatar'),
-            'url' => env('APP_URL').'/storage/avatar',
+            'root' => storage_path('app/public/avatars'),
+            'url' => env('APP_URL').'/storage/avatars',
             'visibility' => 'public',
         ],
 
