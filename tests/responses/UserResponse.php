@@ -11,27 +11,31 @@ class UserResponse implements Responseable
         return [
             'profile' => [
                 'id',
-                'profileMainBlock' => [
+                'profileMainBlock'     => [
                     'id',
                     'fullName',
                     'date',
-                    'image'
+                    'image',
                 ],
                 'profileContactsBlock' => [
                     'emails',
-                    'phoneNumbers'
+                    'phoneNumbers',
                 ],
-                'places' => [
+                'places'               => [
                     '*' => [
                         'id',
                         'name',
-                        'latitude',
-                        'longitude'
-                    ]
+                        'point' => [
+                            'latitude',
+                            'longitude',
+                        ],
+                        'created_at',
+                        'updated_at',
+                    ],
                 ],
                 'profileFavouriteLossObjects',
-                'profileLossObjects'
-            ]
+                'profileLossObjects',
+            ],
         ];
     }
 }

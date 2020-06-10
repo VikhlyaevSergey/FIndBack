@@ -80,11 +80,7 @@ class UserController extends Controller
         $user->last_login = now();
         $user->save();
 
-        return responseApi(
-            [
-                'token' => $token,
-                'id'    => $user->id,
-            ])->get();
+        return responseApi(['token' => $token, 'id' => $user->id,])->get();
     }
 
     /**
@@ -118,7 +114,7 @@ class UserController extends Controller
 
         $token = $user->createToken($phone . ' access_token')->accessToken;
 
-        return responseApi(['profile' => $user->getProfile(), 'token' => $token])->get();
+        return responseApi(['token' => $token, 'id' => $user->id])->get();
     }
 
     /**

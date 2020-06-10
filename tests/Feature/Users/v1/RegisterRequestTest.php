@@ -3,15 +3,13 @@
 namespace Tests\Feature\Users\v1;
 
 use App\Components\Image\ImageHelper;
-use App\Components\Image\ImageSize;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Artisan;
+use Tests\Responses\LoginResponse;
 use Tests\TestCase;
 use App\Models\User;
 use App\Models\Email;
-use App\Models\Phone;
 use Illuminate\Http\UploadedFile;
-use Tests\Responses\UserResponse;
 use Illuminate\Support\Facades\Storage;
 use App\Components\Phone as ComponentsPhone;
 use Illuminate\Foundation\Testing\WithFaker;
@@ -32,13 +30,13 @@ class RegisterRequestTest extends TestCase
         $data = $this->getData();
 
         $response = $this->request($data);
-        
+
         $this->assertResponseSuccess($response)->assertJsonStructure(
             [
-                'response' => UserResponse::response(),
+                'response' => LoginResponse::response(),
             ]);
 
-        $userId = $response->json('response.profile.id');
+        $userId = $response->json('response.id');
 
         $this->assertDatabaseHas('users', ['id' => $userId, 'fullName' => $data['fullName']]);
         $this->assertDatabaseHas('phones', ['user_id' => $userId, 'phone' => ComponentsPhone::create(Arr::first($data['phones']))]);
@@ -48,7 +46,7 @@ class RegisterRequestTest extends TestCase
             $this->assertDatabaseHas('places', ['user_id' => $userId] + $place);
         }
 
-        $image = $response->json('response.profile.profileMainBlock.image');
+        $image = User::findOrFail($userId)->image;
         $path  = ImageHelper::makeOriginal($image)->getPath();
 
         Storage::disk('test')->assertExists($path);
