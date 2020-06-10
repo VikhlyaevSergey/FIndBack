@@ -25,6 +25,7 @@ class UserResponse implements Responseable
                     '*' => [
                         'id',
                         'name',
+                        'addressText',
                         'point' => [
                             'latitude',
                             'longitude',

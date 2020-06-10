@@ -7,11 +7,11 @@ use Illuminate\Database\Eloquent\Model;
 /**
  * App\Models\Place
  *
- * @property int $id
- * @property int $user_id
- * @property string $name
- * @property float $latitude
- * @property float $longitude
+ * @property int                             $id
+ * @property int                             $user_id
+ * @property string                          $name
+ * @property float                           $latitude
+ * @property float                           $longitude
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\Place newModelQuery()
@@ -28,6 +28,6 @@ use Illuminate\Database\Eloquent\Model;
  */
 class Place extends Model
 {
-    protected $fillable = ['name', 'latitude', 'longitude'];
-    
+    protected $fillable = ['name', 'address', 'latitude', 'longitude'];
+
 }

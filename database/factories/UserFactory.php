@@ -32,16 +32,16 @@ $factory->define(
 $factory->define(
     PhoneModel::class, function (Faker $faker) {
     return [
-        'phone' => Phone::create($faker->unique()->numberBetween(10000000000, 99999999999)),
-        'user_id' => factory(User::class)->create()
+        'phone'   => Phone::create($faker->unique()->numberBetween(10000000000, 99999999999)),
+        'user_id' => factory(User::class)->create(),
     ];
 });
 
 $factory->define(
     Email::class, function (Faker $faker) {
     return [
-        'email' => $faker->unique()->safeEmail,
-        'user_id' => factory(User::class)->create()
+        'email'   => $faker->unique()->safeEmail,
+        'user_id' => factory(User::class)->create(),
     ];
 });
 
@@ -57,8 +57,9 @@ $factory->define(
     Place::class, function (Faker $faker) {
     return [
         'name'      => $faker->word,
+        'address'   => $faker->address,
         'latitude'  => $faker->latitude,
         'longitude' => $faker->longitude,
-        'user_id' => factory(User::class)->create()
+        'user_id'   => factory(User::class)->create(),
     ];
 });

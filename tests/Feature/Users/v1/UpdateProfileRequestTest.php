@@ -112,11 +112,13 @@ class UpdateProfileRequestTest extends TestCase
             'places'   => [
                 [
                     'name'      => $this->faker()->word,
+                    'address'   => $this->faker()->address,
                     'latitude'  => $this->faker()->latitude,
                     'longitude' => $this->faker()->longitude,
                 ],
                 [
                     'name'      => $this->faker()->word,
+                    'address'   => $this->faker()->address,
                     'latitude'  => $this->faker()->latitude,
                     'longitude' => $this->faker()->longitude,
                 ],

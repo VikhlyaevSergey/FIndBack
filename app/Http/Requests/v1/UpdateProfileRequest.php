@@ -34,6 +34,7 @@ class UpdateProfileRequest extends FormRequest
 
             'places'             => 'array',
             'places.*.name'      => 'required|string',
+            'places.*.address'   => 'nullable|string',
             'places.*.latitude'  => 'required|numeric',
             'places.*.longitude' => 'required|numeric',
         ];
