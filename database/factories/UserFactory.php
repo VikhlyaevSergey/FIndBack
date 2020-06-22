@@ -25,7 +25,7 @@ $factory->define(
     User::class, function (Faker $faker) {
     return [
         'fullName' => $faker->name,
-        'image'    => $faker->word,
+//        'image'    => $faker->image(),
     ];
 });
 

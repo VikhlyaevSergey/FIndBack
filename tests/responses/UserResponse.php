@@ -15,7 +15,10 @@ class UserResponse implements Responseable
                     'id',
                     'fullName',
                     'date',
-                    'image',
+                    'image_url',
+                    'image_url_mini',
+                    'image_url_medium',
+                    'image_url_max',
                 ],
                 'profileContactsBlock' => [
                     'emails',
